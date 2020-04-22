@@ -1,0 +1,2 @@
+# flashcardbot
+Telegram flashcard bot
