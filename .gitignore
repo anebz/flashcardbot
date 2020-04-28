@@ -1,2 +1,3 @@
-
 token.yml
+__pycache__/
+*.pkl

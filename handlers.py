@@ -4,9 +4,9 @@ from telegram.ext import ConversationHandler
 
 logger = logging.getLogger(__name__)
 
-reply_keyboard = [['Add flashcard', 'Review flashcards'], ['Done']]
+reply_keyboard = [['Add flashcard', 'See flashcards'], ['Delete flashcard', 'Done']]
 markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True)
-OPTION, NEW_WORD = range(2)
+OPTION, NEW_WORD, EDIT_WORD = range(3)
 
 
 def start(update, context):
@@ -28,15 +28,14 @@ def ask_flashcard(update, context):
 
 
 def save_info(update, context):
-    text = update.message.text.split('.')
+    text = update.message.text.split("''")
     # TODO do this as regex to check that the second part is a sentence of letters.
-    if len(text) < 2 or (len(text) == 2 and len(text[1]) < len(text[0])):
+    if len(text) != 2 or text[0][0] != "'" or text[1][-1] != "'":
         update.message.reply_text("Please write the new word and context "
                                   "in this format: 'incredible''this yoghurt is incredible'")
         return OPTION
 
-    new_word = text[0]
-    word_context = '. '.join(text[1:])
+    new_word, word_context = text[0][1:], text[1][:-1]
     context.user_data[new_word] = word_context
     reply_text = f"New word added: '{new_word}' with context:'{word_context}'"
     logger.info(reply_text)
@@ -46,9 +45,28 @@ def save_info(update, context):
 
 
 def review_flashcards(update, context):
-    reply_text = "id\tword\tword_context\n"
-    reply_text += '\n'.join([f"{i+1}\t{word}\t{word_context}" for i, (word, word_context) in enumerate(context.user_data.items())])
-    logger.info(reply_text)
+    # https://stackoverflow.com/questions/8885663/how-to-format-a-floating-number-to-fixed-width-in-python
+    reply_text = "| id | word | word_context |" + "\n| --|:--:| --:|\n"
+
+    for i, (word, word_context) in enumerate(context.user_data.items()):
+        reply_text += f"| {i+1} | {word} | {word_context} |\n"
+
+    update.message.reply_text(reply_text)
+    return OPTION
+
+def ask_edit_flashcard(update, context):
+    update.message.reply_text("Write the word you want to edit from the flashcard system")
+    return EDIT_WORD
+
+
+def delete_flashcards(update, context):
+    word = update.message.text
+    if word in context.user_data:
+        reply_text = f"The word {word} was deleted"
+        del context.user_data[word]
+    else:
+        reply_text = "This word is not in the flashcard system"
+
     update.message.reply_text(reply_text)
     return OPTION
 

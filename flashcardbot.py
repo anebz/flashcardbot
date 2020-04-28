@@ -20,15 +20,15 @@ import logging
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, PicklePersistence
 
 import handlers
+from handlers import OPTION, NEW_WORD, EDIT_WORD
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-OPTION, NEW_WORD = range(2)
 
 def main():
     # Create the Updater and pass it your bot's token.
-    pp = PicklePersistence(filename='flashcard.pkl')
+    pp = PicklePersistence(filename='data.pkl')
 
     token = None
     try:
@@ -48,9 +48,11 @@ def main():
 
         states={
             OPTION: [MessageHandler(Filters.regex('^Add flashcard$'), handlers.ask_flashcard),
-                     MessageHandler(Filters.regex('^Review flashcards$'), handlers.review_flashcards)],
+                     MessageHandler(Filters.regex('^See flashcards$'), handlers.review_flashcards),
+                     MessageHandler(Filters.regex('^Delete flashcard$'), handlers.ask_edit_flashcard)],
 
-            NEW_WORD: [MessageHandler(Filters.text, handlers.save_info)]
+            NEW_WORD: [MessageHandler(Filters.text, handlers.save_info)],
+            EDIT_WORD: [MessageHandler(Filters.text, handlers.delete_flashcards)]
         },
 
         fallbacks=[MessageHandler(Filters.regex('^Done$'), handlers.done)],
