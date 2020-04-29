@@ -48,8 +48,10 @@ def main():
 
         states={
             OPTION: [MessageHandler(Filters.regex('^Add flashcard$'), handlers.ask_flashcard),
-                     MessageHandler(Filters.regex('^See flashcards$'), handlers.review_flashcards),
-                     MessageHandler(Filters.regex('^Delete flashcard$'), handlers.ask_edit_flashcard)],
+                     MessageHandler(Filters.regex('^See flashcards$'), handlers.see_flashcards),
+                     MessageHandler(Filters.regex('^Delete flashcard$'), handlers.ask_edit_flashcard),
+                     MessageHandler(Filters.regex('^Review flashcards$'), handlers.review_flashcards),
+                     MessageHandler(Filters.regex('^go$'), handlers.review_flashcards)],
 
             NEW_WORD: [MessageHandler(Filters.text, handlers.save_info)],
             EDIT_WORD: [MessageHandler(Filters.text, handlers.delete_flashcards)]

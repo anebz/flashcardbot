@@ -1,10 +1,12 @@
 import logging
+from random import sample
+
 from telegram import ReplyKeyboardMarkup, ParseMode, Message
 from telegram.ext import ConversationHandler
 
 logger = logging.getLogger(__name__)
 
-reply_keyboard = [['Add flashcard', 'See flashcards'], ['Delete flashcard', 'Done']]
+reply_keyboard = [['Add flashcard', 'See flashcards'], ['Delete flashcard', 'Review flashcards'], ['Done']]
 markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True)
 OPTION, NEW_WORD, EDIT_WORD = range(3)
 
@@ -29,7 +31,6 @@ def ask_flashcard(update, context):
 
 def save_info(update, context):
     text = update.message.text.split("''")
-    # TODO do this as regex to check that the second part is a sentence of letters.
     if len(text) != 2 or text[0][0] != "'" or text[1][-1] != "'":
         update.message.reply_text("Please write the new word and context "
                                   "in this format: 'incredible''this yoghurt is incredible'")
@@ -44,7 +45,7 @@ def save_info(update, context):
     return OPTION
 
 
-def review_flashcards(update, context):
+def see_flashcards(update, context):
     # https://stackoverflow.com/questions/8885663/how-to-format-a-floating-number-to-fixed-width-in-python
     reply_text = "| id | word | word_context |" + "\n| --|:--:| --:|\n"
 
@@ -71,8 +72,58 @@ def delete_flashcards(update, context):
     return OPTION
 
 
+def review_flashcards(update, context):
+    if not context.user_data:
+        update.message.reply_text("There are no saved flashcards")
+        return OPTION
+    
+    all_words = sample(context.user_data.keys(), len(context.user_data))
+
+    if not 'reviewing' in context.user_data:
+        if not 'reviewed' in context.user_data:
+            # beginning of review
+            word = all_words[0]
+            update.message.reply_text("You will see a word and try to remember its context. When you are ready, enter 'go'. \n"
+                                      f"| word | word_context |\n| --|:--:| --:|\n| {word} | ... |\n")
+
+        else:
+            # some words have been reviewed, but none right now
+            for possible_word in all_words:
+                if possible_word != 'reviewed' and possible_word not in context.user_data['reviewed']:
+                    # review a word that hasn't been reviewed yet
+                    word = possible_word
+                    update.message.reply_text(f"| {word} | ... |\n")
+                    break
+            else:
+                # end of review
+                update.message.reply_text("flashcard review complete")
+                context.user_data.pop("reviewed", None)
+                return OPTION
+
+        context.user_data['reviewing'] = word
+        logger.info(f"Reviewing word {word}")
+
+    else:
+        # the user is reviewing one word
+        reviewing_word = context.user_data['reviewing']
+        update.message.reply_text(f"| {reviewing_word} | {context.user_data[reviewing_word]} |\n")
+        logger.info(f"Reviewing context of word {reviewing_word}")
+
+        if not 'reviewed' in context.user_data:
+            context.user_data['reviewed'] = [reviewing_word]
+        else:
+            context.user_data['reviewed'].append(reviewing_word)
+
+        context.user_data.pop('reviewing', None)
+        review_flashcards(update, context)
+
+    return OPTION
+
+
 def done(update, context):
-    logger.info("Session ended.")
+    context.user_data.pop("reviewing", None)
+    context.user_data.pop("reviewed", None)
+    logger.info("Session ended")
     return ConversationHandler.END
 
 
