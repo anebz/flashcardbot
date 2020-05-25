@@ -32,13 +32,13 @@ def ask_flashcard(update, context):
 def save_info(update, context):
     text = update.message.text.split("''")
     if len(text) != 2 or text[0][0] != "'" or text[1][-1] != "'":
-        update.message.reply_text("Please write the new word and context "
-                                  "in this format: 'incredible''this yoghurt is incredible'")
+        update.message.reply_text("Please write the new word and context in this format: "
+                                  "incredible=this yoghurt is incredible")
         return OPTION
 
-    new_word, word_context = text[0][1:], text[1][:-1]
+    new_word, word_context = text.split('=')[0], ''.join(text.split('=')[1:])
     context.user_data[new_word] = word_context
-    reply_text = f"New word added: '{new_word}' with context:'{word_context}'"
+    reply_text = f"New word added: '{new_word}' with context: '{word_context}'"
     logger.info(reply_text)
 
     update.message.reply_text(reply_text, reply_markup=markup)

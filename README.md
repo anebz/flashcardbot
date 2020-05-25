@@ -3,11 +3,8 @@
 ## tasks
 
 * [ ] Review flashcards, spaced repetition
-* [ ] doesn't work for Daphne with strange quotes
-  * word=context
 * [ ] Send alert
-* [ ] Tell user to do 'Done' command in the end
-* [X] Heroku deployment
+* [ ] Do 'Done' step in each step?
 * [ ] Connect to linguee for automatic context?
 
 ## heroku deployment
