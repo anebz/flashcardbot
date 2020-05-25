@@ -25,18 +25,52 @@ from handlers import OPTION, NEW_WORD, EDIT_WORD
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-
-def main():
-    # Create the Updater and pass it your bot's token.
-    pp = PicklePersistence(filename='data.pkl')
-
+def get_token():
     token = None
     try:
-        with open('token.yml', 'r') as f:
-            token = f.readline()
+        token = os.getenv("TOKEN")
     except:
-        print("The token should be written in token.yml")
+        try:
+            with open('token.yml', 'r') as f:
+                token = f.readline()
+        except:
+            print("The token should be written in token.yml")
+            sys.exit(1)
+    return token
+
+
+def set_run(token):
+
+    try:
+        mode = os.getenv("MODE")
+    except:
+        logger.error("No MODE specified!")
         sys.exit(1)
+
+    if mode == "dev":
+        def run(updater):
+            updater.start_polling()
+            updater.idle()
+    elif mode == "prod":
+        def run(updater):
+            PORT = int(os.environ.get("PORT", "8443"))
+            HEROKU_APP_NAME = os.environ.get("HEROKU_APP_NAME")
+            # Code from https://github.com/python-telegram-bot/python-telegram-bot/wiki/Webhooks#heroku
+            updater.start_webhook(listen="0.0.0.0", port=PORT, url_path=token)
+            updater.bot.set_webhook("https://{}.herokuapp.com/{}".format(HEROKU_APP_NAME, token))
+    else:
+        logger.error("No MODE specified!")
+        sys.exit(1)
+    return run
+
+
+def main():
+
+    token = get_token()
+    run = set_run(token)
+
+    # Create the Updater and pass it your bot's token.
+    pp = PicklePersistence(filename='data.pkl')
 
     updater = Updater(token, persistence=pp, use_context=True)
 
@@ -63,16 +97,10 @@ def main():
     )
 
     dp.add_handler(conv_handler)
-    #dp.add_handler(CommandHandler('show_data', show_data))
     dp.add_error_handler(handlers.error)
 
-    # Start the Bot
-    updater.start_polling()
-
-    # Run the bot until you press Ctrl-C or the process receives SIGINT,
-    # SIGTERM or SIGABRT. This should be used most of the time, since
-    # start_polling() is non-blocking and will stop the bot gracefully.
-    updater.idle()
+    logger.info("Starting bot")
+    run(updater)
 
 
 if __name__ == '__main__':
