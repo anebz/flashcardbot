@@ -64,6 +64,7 @@ def delete_flashcards(update, context):
     word = update.message.text
     if word in context.user_data:
         reply_text = f"The word {word} was deleted"
+        logger.info(reply_text)
         del context.user_data[word]
     else:
         reply_text = "This word is not in the flashcard system"
