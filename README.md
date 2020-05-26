@@ -2,6 +2,11 @@
 
 ## tasks
 
+* [ ] Make bot more presentable
+* [ ] Data isn't persistent in heroku
+    * Add .pkl to heroku in Dockerfile?
+    * https://github.com/python-telegram-bot/python-telegram-bot/wiki/Making-your-bot-persistent
+    * https://github.com/David-Lor/Telegram-BusBot-DataManager
 * [ ] Review flashcards, spaced repetition
 * [ ] Send alert
 * [ ] Do 'Done' step in each step?
@@ -15,6 +20,7 @@
 * `heroku container:push web`
 * `heroku container:release web`
 * `heroku logs --tail`
+* To stop the app: `heroku ps:scale web=0`. Manually scale to web=1 afterwards.
 
 ## heroku resources
 

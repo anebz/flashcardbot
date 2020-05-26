@@ -23,20 +23,20 @@ def start(update, context):
 
 def ask_flashcard(update, context):
     reply_text = "Write the new word you want to add to the flashcard system and the context "\
-                 "in this format: 'incredible''this yoghurt is incredible'"
+                 "in this format: incredible=this yoghurt is incredible"
     update.message.reply_text(reply_text)
 
     return NEW_WORD
 
 
 def save_info(update, context):
-    text = update.message.text.split("''")
-    if len(text) != 2 or text[0][0] != "'" or text[1][-1] != "'":
+    text = update.message.text.split("=")
+    if len(text) != 2:
         update.message.reply_text("Please write the new word and context in this format: "
                                   "incredible=this yoghurt is incredible")
         return OPTION
 
-    new_word, word_context = text.split('=')[0], ''.join(text.split('=')[1:])
+    new_word, word_context = text[0], ''.join(text[1:])
     context.user_data[new_word] = word_context
     reply_text = f"New word added: '{new_word}' with context: '{word_context}'"
     logger.info(reply_text)

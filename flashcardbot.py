@@ -61,13 +61,13 @@ def set_run(token):
     else:
         logger.error("No MODE specified!")
         sys.exit(1)
-    return run
+    return run, mode
 
 
 def main():
 
     token = get_token()
-    run = set_run(token)
+    run, mode = set_run(token)
 
     # Create the Updater and pass it your bot's token.
     pp = PicklePersistence(filename='data.pkl')
@@ -99,7 +99,7 @@ def main():
     dp.add_handler(conv_handler)
     dp.add_error_handler(handlers.error)
 
-    logger.info("Starting bot")
+    logger.info(f"Starting bot in mode={mode}")
     run(updater)
 
 
