@@ -1,1 +1,3 @@
+dnspython
+pymongo
 python-telegram-bot
