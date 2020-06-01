@@ -1,5 +1,8 @@
+import os
+import sys
 import logging
 from random import sample
+from pymongo import MongoClient
 
 from telegram import ReplyKeyboardMarkup, ParseMode, Message
 from telegram.ext import ConversationHandler
@@ -9,6 +12,17 @@ logger = logging.getLogger(__name__)
 reply_keyboard = [['Add flashcard', 'See flashcards'], ['Delete flashcard', 'Review flashcards'], ['Done']]
 markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True)
 OPTION, NEW_WORD, EDIT_WORD = range(3)
+
+try:
+    MONGODB_URL = os.getenv('MONGODB_URL')
+except:
+    print("No MONGO_URL found in the environment variables")
+    sys.exit(1)
+
+def get_mongodb():
+    client = MongoClient(MONGODB_URL)
+    db = client.flashcardb
+    return db
 
 
 def start(update, context):
@@ -40,8 +54,13 @@ def save_info(update, context):
     context.user_data[new_word] = word_context
     reply_text = f"New word added: '{new_word}' with context: '{word_context}'"
     logger.info(reply_text)
-
     update.message.reply_text(reply_text, reply_markup=markup)
+
+    # add to mongodb
+    logger.info(update.message.from_user.id)
+    db = get_mongodb()
+    
+
     return OPTION
 
 

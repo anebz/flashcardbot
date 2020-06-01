@@ -6,21 +6,22 @@
 * [ ] demo of bot behavior in readme
 * [ ] Add handlers for start, Done
 * [~] Data isn't persistent in heroku
-  * Add .pkl to heroku in Dockerfile?
+  * <https://cloud.mongodb.com/>
   * <https://github.com/python-telegram-bot/python-telegram-bot/wiki/Making-your-bot-persistent>
   * <https://github.com/David-Lor/Telegram-BusBot-DataManager>
   * <https://medium.com/@voronov007/telegram-bot-from-scratch-development-with-python-and-deploying-on-free-of-costs-server-from-2463f2b63d83>
+  * <https://www.mongodb.com/blog/post/getting-started-with-python-and-mongodb>
 * [ ] Review flashcards, spaced repetition
 * [ ] Send alert
-* [ ] Do 'Done' step in each step?
+* [ ] Do 'Done' step in each step? @mongodb
 * [ ] Connect to linguee for automatic context?
 
 ## mongodb
 
 ```python
 user_id = update.message.from_user.id
-user_collection = db.user_id is the user's json/dict
-make sure user collection has a text index
+user_collection = db.user_id # is the user's json/dict
+# make sure user collection has a text index
 user_collection.create_index([('post', TEXT)], default_language='english')
 last_added = user_collection.find({}).sort('_id', -1).next()
 

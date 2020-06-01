@@ -16,7 +16,6 @@ bot.
 import os
 import sys
 import logging
-import pymongo
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, PicklePersistence
 
@@ -25,17 +24,6 @@ from handlers import OPTION, NEW_WORD, EDIT_WORD
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-def get_mongodb():
-    try:
-        MONGODB_URL = os.getenv('MONGODB_URL')
-    except:
-        print("No MONGO_URL found in the environment variables")
-        sys.exit(1)
-
-    client = pymongo.MongoClient(MONGODB_URL)
-    db = client.flashcardb
-    return db
 
 def get_token():
     token = None
@@ -80,9 +68,6 @@ def main():
 
     token = get_token()
     run, MODE = set_run(token)
-
-    # get MongoDB credentials
-    db = get_mongodb()
 
     # Create the Updater and pass it your bot's token.
     pp = PicklePersistence(filename='data.pkl')
