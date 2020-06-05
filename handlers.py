@@ -19,9 +19,11 @@ except:
     print("No MONGO_URL found in the environment variables")
     sys.exit(1)
 
-client = MongoClient(MONGODB_URL)
-db = client.flashcardb
-coll = db.flashcardb
+def get_mongodb_coll():
+    client = MongoClient(MONGODB_URL)
+    db = client.flashcardb
+    coll = db.flashcardb
+    return coll
 
 
 def start(update, context):
@@ -56,6 +58,7 @@ def save_info(update, context):
     update.message.reply_text(reply_text, reply_markup=markup)
 
     # updates the 'flashcards' dictionary in mongodb https://docs.mongodb.com/manual/reference/operator/update/set/
+    coll = get_mongodb_coll()
     coll.update_one({'user_id': update.message.from_user.id},
                     {'$set': {'flashcards.'+new_word: word_context}}, upsert=True)
 
@@ -66,8 +69,8 @@ def see_flashcards(update, context):
     # https://stackoverflow.com/questions/8885663/how-to-format-a-floating-number-to-fixed-width-in-python
     reply_text = "| id | word | word_context |" + "\n| --|:--:| --:|\n"
 
-    user_data = coll.find_one({"user_id": update.message.from_user.id})[
-        'flashcards']
+    coll = get_mongodb_coll()
+    user_data = coll.find_one({"user_id": update.message.from_user.id})['flashcards']
 
     for i, (word, word_context) in enumerate(user_data.items()):
         reply_text += f"| {i+1} | {word} | {word_context} |\n"
@@ -90,6 +93,7 @@ def delete_flashcards(update, context):
     else:
         reply_text = "This word is not in the flashcard system"
     '''
+    coll = get_mongodb_coll()
     coll.update_one({'user_id': update.message.from_user.id},
                     {'$unset': {'flashcards.'+word: ''}}, upsert=True)
 
