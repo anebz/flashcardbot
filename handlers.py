@@ -19,10 +19,9 @@ except:
     print("No MONGO_URL found in the environment variables")
     sys.exit(1)
 
-def get_mongodb():
-    client = MongoClient(MONGODB_URL)
-    db = client.flashcardb
-    return db
+client = MongoClient(MONGODB_URL)
+db = client.flashcardb
+coll = db.flashcardb
 
 
 def start(update, context):
@@ -51,15 +50,14 @@ def save_info(update, context):
         return OPTION
 
     new_word, word_context = text[0], ''.join(text[1:])
-    context.user_data[new_word] = word_context
+    #context.user_data[new_word] = word_context
     reply_text = f"New word added: '{new_word}' with context: '{word_context}'"
     logger.info(reply_text)
     update.message.reply_text(reply_text, reply_markup=markup)
 
-    # add to mongodb
-    logger.info(update.message.from_user.id)
-    db = get_mongodb()
-    
+    # updates the 'flashcards' dictionary in mongodb https://docs.mongodb.com/manual/reference/operator/update/set/
+    coll.update_one({'user_id': update.message.from_user.id},
+                    {'$set': {'flashcards.'+new_word: word_context}}, upsert=True)
 
     return OPTION
 
@@ -68,7 +66,10 @@ def see_flashcards(update, context):
     # https://stackoverflow.com/questions/8885663/how-to-format-a-floating-number-to-fixed-width-in-python
     reply_text = "| id | word | word_context |" + "\n| --|:--:| --:|\n"
 
-    for i, (word, word_context) in enumerate(context.user_data.items()):
+    user_data = coll.find_one({"user_id": update.message.from_user.id})[
+        'flashcards']
+
+    for i, (word, word_context) in enumerate(user_data.items()):
         reply_text += f"| {i+1} | {word} | {word_context} |\n"
 
     update.message.reply_text(reply_text)
@@ -81,14 +82,18 @@ def ask_edit_flashcard(update, context):
 
 def delete_flashcards(update, context):
     word = update.message.text
+    '''
     if word in context.user_data:
         reply_text = f"The word {word} was deleted"
         logger.info(reply_text)
         del context.user_data[word]
     else:
         reply_text = "This word is not in the flashcard system"
+    '''
+    coll.update_one({'user_id': update.message.from_user.id},
+                    {'$unset': {'flashcards.'+word: ''}}, upsert=True)
 
-    update.message.reply_text(reply_text)
+    update.message.reply_text(f"The word {word} was deleted")
     return OPTION
 
 

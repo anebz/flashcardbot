@@ -4,7 +4,9 @@
 
 * [ ] Make bot more presentable
 * [ ] demo of bot behavior in readme
-* [ ] Add handlers for start, Done
+* [ ] Add handlers for start, Done. Maybe even delete start
+* [ ] delete heroku.yml?
+* [ ] Adapt review_flashcards to mongodb
 * [~] Data isn't persistent in heroku
   * <https://cloud.mongodb.com/>
   * <https://github.com/python-telegram-bot/python-telegram-bot/wiki/Making-your-bot-persistent>
@@ -13,7 +15,7 @@
   * <https://www.mongodb.com/blog/post/getting-started-with-python-and-mongodb>
 * [ ] Review flashcards, spaced repetition
 * [ ] Send alert
-* [ ] Do 'Done' step in each step? @mongodb
+* [ ] Do 'Done' step in each step? @mongodb how does it end the session?
 * [ ] Connect to linguee for automatic context?
 
 ## mongodb
@@ -96,3 +98,4 @@ def connect_db():
 * [Run a bot in google app engine](https://github.com/yukuku/telebot)
 * [Imaginary friend bot, docker/redis, uses webhook in src/bot.py](https://github.com/telegram-bots/imaginaryfriend)
 * [ankigenbot](https://github.com/damaru2/ankigenbot)
+* [Apartments bot: facebook parsing, lowdb, js, tests](https://snir.dev/blog/apartments-bot/). [Github repo](https://github.com/snird/apartments_bot)
