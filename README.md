@@ -2,17 +2,12 @@
 
 ## tasks
 
-* [ ] Make bot more presentable
-* [ ] demo of bot behavior in readme
+* [X] Data isn't persistent in heroku
 * [ ] Add handlers for start, Done. Maybe even delete start
-* [ ] delete heroku.yml?
+* [ ] Make bot more presentable
+* [X] delete heroku.yml?
+* [ ] demo of bot behavior in readme
 * [ ] Adapt review_flashcards to mongodb
-* [~] Data isn't persistent in heroku
-  * <https://cloud.mongodb.com/>
-  * <https://github.com/python-telegram-bot/python-telegram-bot/wiki/Making-your-bot-persistent>
-  * <https://github.com/David-Lor/Telegram-BusBot-DataManager>
-  * <https://medium.com/@voronov007/telegram-bot-from-scratch-development-with-python-and-deploying-on-free-of-costs-server-from-2463f2b63d83>
-  * <https://www.mongodb.com/blog/post/getting-started-with-python-and-mongodb>
 * [ ] Review flashcards, spaced repetition
 * [ ] Send alert
 * [ ] Do 'Done' step in each step? @mongodb how does it end the session?
@@ -20,42 +15,25 @@
 
 ## mongodb
 
+* <https://cloud.mongodb.com/>
+* To update collection: <https://docs.mongodb.com/manual/reference/operator/update/set/>
+* App was warking in local, not in heroku. Only the local IP was whitelisted in MongoDB, had to put [0.0.0.0/0](https://stackoverflow.com/a/42170205/4569908)
+
+## persistence
+
+* [First used pickle persistence](https://github.com/python-telegram-bot/python-telegram-bot/wiki/Making-your-bot-persistent)
+
 ```python
-user_id = update.message.from_user.id
-user_collection = db.user_id # is the user's json/dict
-# make sure user collection has a text index
-user_collection.create_index([('post', TEXT)], default_language='english')
-last_added = user_collection.find({}).sort('_id', -1).next()
+# Create the Updater and pass it your bot's token.
+pp = PicklePersistence(filename='data.pkl')
 
-def stats(bot, update):
-    user = update.message.from_user
-    user_coll = get_user_collection(user)
-    response = '🗄 Your Daytobase has {} records\n'.format(user_coll.count())
+updater = Updater(token, persistence=pp, use_context=True)
 
-    if user.id in settings.ADMIN_IDS:
-        client = MongoClient()
-        db = client['daytobase']
-        coll_counts = [db[coll].count() for coll in db.collection_names()]
-        response += '\nDaytobase has `{}` users\n'.format(len(coll_counts))
-        response += 'Biggest collection sizes: `{}`\n'.format(sorted(coll_counts)[-3:])
+# in ConversationHandler, under fallbacks, name
+persistent=True
 
-        month_ago = datetime.utcnow() - timedelta(days=30)
-        recent_counts = [db[coll].find({'time': {'$gt': month_ago}}).count()
-                         for coll in db.collection_names()]
-        response += 'New records over past 30 days:  `{}`\n'.format(sum(recent_counts))
-        active_colls = sum([c > 0 for c in recent_counts])
-        response += 'Users active over past 30 days: `{}`\n'.format(active_colls)
-
-    update.message.reply_text(response, parse_mode='Markdown')
-
-# from https://github.com/lorien/daysandbox_bot
-def connect_db():
-    db = MongoClient()['daysandbox']
-    db.user.create_index('username', unique=True)
-    db.joined_user.create_index([('chat_id', 1), ('user_id', 1)])
-    db.event.create_index([('type', 1), ('date', 1)])
-    db.day_stat.create_index('date')
-    return db
+# then use context.user_data as dict in handlers
+context.user_data[new_word] = word_context
 ```
 
 ## heroku
@@ -99,3 +77,5 @@ def connect_db():
 * [Imaginary friend bot, docker/redis, uses webhook in src/bot.py](https://github.com/telegram-bots/imaginaryfriend)
 * [ankigenbot](https://github.com/damaru2/ankigenbot)
 * [Apartments bot: facebook parsing, lowdb, js, tests](https://snir.dev/blog/apartments-bot/). [Github repo](https://github.com/snird/apartments_bot)
+* [Persistent bot about a transportation service: rest api, mongodb](https://github.com/David-Lor/Telegram-BusBot-DataManager)
+* [Bot on python, django, rest api, heroku](https://medium.com/@voronov007/telegram-bot-from-scratch-development-with-python-and-deploying-on-free-of-costs-server-from-2463f2b63d83)

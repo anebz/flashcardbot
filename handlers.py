@@ -19,15 +19,14 @@ except:
     print("No MONGO_URL found in the environment variables")
     sys.exit(1)
 
-def get_mongodb_coll():
-    client = MongoClient(MONGODB_URL)
-    db = client.flashcardb
-    coll = db.flashcardb
-    return coll
+client = MongoClient(MONGODB_URL)
+db = client.flashcardb
+coll = db.flashcardb
 
 
 def start(update, context):
     reply_text = "Hi! I'm the flashcard bot."
+    # TODO check if db/coll is empty
     if context.user_data:
         reply_text += " You already have some flashcards saved. Do you want to review them?"
     reply_text += " Do you want to add new words?"
@@ -52,15 +51,13 @@ def save_info(update, context):
         return OPTION
 
     new_word, word_context = text[0], ''.join(text[1:])
-    #context.user_data[new_word] = word_context
+
+    coll.update_one({'user_id': update.message.from_user.id},
+                    {'$set': {'flashcards.'+new_word: word_context}}, upsert=True)
+    
     reply_text = f"New word added: '{new_word}' with context: '{word_context}'"
     logger.info(reply_text)
     update.message.reply_text(reply_text, reply_markup=markup)
-
-    # updates the 'flashcards' dictionary in mongodb https://docs.mongodb.com/manual/reference/operator/update/set/
-    coll = get_mongodb_coll()
-    coll.update_one({'user_id': update.message.from_user.id},
-                    {'$set': {'flashcards.'+new_word: word_context}}, upsert=True)
 
     return OPTION
 
@@ -69,7 +66,6 @@ def see_flashcards(update, context):
     # https://stackoverflow.com/questions/8885663/how-to-format-a-floating-number-to-fixed-width-in-python
     reply_text = "| id | word | word_context |" + "\n| --|:--:| --:|\n"
 
-    coll = get_mongodb_coll()
     user_data = coll.find_one({"user_id": update.message.from_user.id})['flashcards']
 
     for i, (word, word_context) in enumerate(user_data.items()):
@@ -78,6 +74,7 @@ def see_flashcards(update, context):
     update.message.reply_text(reply_text)
     return OPTION
 
+
 def ask_edit_flashcard(update, context):
     update.message.reply_text("Write the word you want to edit from the flashcard system")
     return EDIT_WORD
@@ -85,15 +82,7 @@ def ask_edit_flashcard(update, context):
 
 def delete_flashcards(update, context):
     word = update.message.text
-    '''
-    if word in context.user_data:
-        reply_text = f"The word {word} was deleted"
-        logger.info(reply_text)
-        del context.user_data[word]
-    else:
-        reply_text = "This word is not in the flashcard system"
-    '''
-    coll = get_mongodb_coll()
+    
     coll.update_one({'user_id': update.message.from_user.id},
                     {'$unset': {'flashcards.'+word: ''}}, upsert=True)
 

@@ -69,10 +69,7 @@ def main():
     token = get_token()
     run, MODE = set_run(token)
 
-    # Create the Updater and pass it your bot's token.
-    pp = PicklePersistence(filename='data.pkl')
-
-    updater = Updater(token, persistence=pp, use_context=True)
+    updater = Updater(token, use_context=True)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
@@ -92,8 +89,7 @@ def main():
         },
 
         fallbacks=[MessageHandler(Filters.regex('^Done$'), handlers.done)],
-        name="flashcard_bot",
-        persistent=True
+        name="flashcard_bot"
     )
 
     dp.add_handler(conv_handler)
