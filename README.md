@@ -2,12 +2,12 @@
 
 ## tasks
 
-* [X] Data isn't persistent in heroku
+* [ ] Adapt review_flashcards to mongodb
+* [ ] Make different decks for diff languages
+* [ ] Get back to menu easier
 * [ ] Add handlers for start, Done. Maybe even delete start
 * [ ] Make bot more presentable
-* [X] delete heroku.yml?
 * [ ] demo of bot behavior in readme
-* [ ] Adapt review_flashcards to mongodb
 * [ ] Review flashcards, spaced repetition
 * [ ] Send alert
 * [ ] Do 'Done' step in each step? @mongodb how does it end the session?
@@ -62,6 +62,10 @@ context.user_data[new_word] = word_context
 * <https://dashboard.heroku.com/apps/tflashcardbot/logs>
 * [Where to host Telegram bots](https://github.com/python-telegram-bot/python-telegram-bot/wiki/Where-to-host-Telegram-Bots)
 * <https://devcenter.heroku.com/articles/how-heroku-works>
+
+## docker & heroku
+
+* Need a [heroku.yml](https://devcenter.heroku.com/articles/build-docker-images-heroku-yml) file. If you don’t include a run section in the yml, Heroku uses the CMD specified in the Dockerfile.
 
 ## enhancements
 
