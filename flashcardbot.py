@@ -26,6 +26,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 def get_token():
+
     token = None
     try:
         token = os.getenv("TOKEN")
@@ -82,7 +83,8 @@ def main():
                      MessageHandler(Filters.regex('^See flashcards$'), handlers.see_flashcards),
                      MessageHandler(Filters.regex('^Delete flashcard$'), handlers.ask_edit_flashcard),
                      MessageHandler(Filters.regex('^Review flashcards$'), handlers.review_flashcards),
-                     MessageHandler(Filters.regex('^go$'), handlers.review_flashcards)],
+                     MessageHandler(Filters.regex('^go$'), handlers.review_flashcards),
+                     MessageHandler(Filters.regex('^=$'), handlers.save_info)],
 
             NEW_WORD: [MessageHandler(Filters.text, handlers.save_info)],
             EDIT_WORD: [MessageHandler(Filters.text, handlers.delete_flashcards)]

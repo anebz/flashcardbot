@@ -6,18 +6,20 @@
 * [ ] Make different decks for diff languages
 * [ ] Get back to menu easier
 * [ ] Add handlers for start, Done. Maybe even delete start
-* [ ] Make bot more presentable
 * [ ] demo of bot behavior in readme
 * [ ] Review flashcards, spaced repetition
 * [ ] Send alert
 * [ ] Do 'Done' step in each step? @mongodb how does it end the session?
 * [ ] Connect to linguee for automatic context?
+* [ ] Check @ankigen_bot in telegram
+* [ ] if = in text, add flashcard
 
 ## mongodb
 
-* <https://cloud.mongodb.com/>
-* To update collection: <https://docs.mongodb.com/manual/reference/operator/update/set/>
+* [MongoDB Atlas cloud](https://cloud.mongodb.com/)
+* [To update collection](https://docs.mongodb.com/manual/reference/operator/update/set/)
 * App was warking in local, not in heroku. Only the local IP was whitelisted in MongoDB, had to put [0.0.0.0/0](https://stackoverflow.com/a/42170205/4569908)
+* [Mongodb python tutorial](http://zetcode.com/python/pymongo/): greater than, sort, aggregate, limit data output
 
 ## persistence
 
@@ -83,3 +85,4 @@ context.user_data[new_word] = word_context
 * [Apartments bot: facebook parsing, lowdb, js, tests](https://snir.dev/blog/apartments-bot/). [Github repo](https://github.com/snird/apartments_bot)
 * [Persistent bot about a transportation service: rest api, mongodb](https://github.com/David-Lor/Telegram-BusBot-DataManager)
 * [Bot on python, django, rest api, heroku](https://medium.com/@voronov007/telegram-bot-from-scratch-development-with-python-and-deploying-on-free-of-costs-server-from-2463f2b63d83)
+* [Todoist bot, python](https://github.com/ihoru/todoist_bot)

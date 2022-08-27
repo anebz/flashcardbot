@@ -63,11 +63,12 @@ def save_info(update, context):
 
 
 def see_flashcards(update, context):
+    reply_text = f"You have {coll.find().count()} flashcards saved.\n"
+
     # https://stackoverflow.com/questions/8885663/how-to-format-a-floating-number-to-fixed-width-in-python
-    reply_text = "| id | word | word_context |" + "\n| --|:--:| --:|\n"
+    reply_text += "| id | word | word_context |" + "\n| --|:--:| --:|\n"
 
     user_data = coll.find_one({"user_id": update.message.from_user.id})['flashcards']
-
     for i, (word, word_context) in enumerate(user_data.items()):
         reply_text += f"| {i+1} | {word} | {word_context} |\n"
 
